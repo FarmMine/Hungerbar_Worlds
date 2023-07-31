@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Multiplayer pixel game!</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+  integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+<style>
+#gameScreen {
+  display: none;
+}
+      body { margin: 0; padding-bottom: 3rem; font-family: sans-serif; }
+
+      #form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; bottom: 0; left: 0; right: 0; display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+      #input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
+      #input:focus { outline: none; }
+      #form > button { background: rgb(0,0,0); border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: rgb(132, 255, 138); }
+
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages > li { padding: 0.5rem 1rem; }
+      #messages > li { background: 	rgb(0,191,255, 0.15); }
+    .btn {
+        background-color: lightgreen;
+        color: black;
+        padding: 0.8em;
+        margin: 0.5em;
+        border-radius: 1.2em;
+        border-color: aquamarine;
+        font-size: 18px;
+    }
+        .btn:hover {
+            opacity: 0.8;
+            background-color: aquamarine;
+        }
+    
+    .modal {
+      display: none; 
+      position: fixed; 
+      z-index: 1; 
+      padding-top: 100px; 
+      left: 0;
+      top: 0;
+      width: 100%; 
+      height: 100%;
+      overflow: auto; 
+      background-color: rgb(0,0,0); 
+      background-color: rgba(0,0,0,0.4); 
+    }
+    
+    .modal-content {
+      background-color: #fefefe;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+    }
+    
+    .close {
+      color: #aaaaaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    
+    .close:hover,
+    .close:focus {
+      color: #000;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    </style>
+</head>
+<body>
+    <div id="app">
+  <center>
+    <div style="margin-bottom: 2rem; margin-top: 1em">
+        <div class="text-center">
+            <button type="button" id="logInBtn">Login</button>
+            <button type="button" id="logOutBtn">Logout</button>
+        </div>
+        <div class="modal" id="loginModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button" id="modalX"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Please fill out the login details: </p><br>
+                        <form>
+                            <label for="username">Username:</label><br>
+                            <input id="username" name="username" type="text"><br>
+                            <label for="password">Password:</label><br>
+                            <input id="password" name="password" type="password">
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" id="closeBtn">Close</button>
+                        <button class="btn btn-secondary" type="button" id="registerBtn">Register</button>
+                        <button class="btn btn-primary" type="button" id="login_Btn">Confirm login</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="initialScreen">
+            <div>
+                <h1>Multiplayer pixel game!</h1>
+                <h4>Eat the blob and grow!</h4>
+                <button 
+                        class="btn"
+                        id="joinPubButton">
+                    Join the public room
+                </button>
+                <button 
+                        class="btn"
+                        id="newGameButton">
+                    Create a private room
+                </button>
+                <div style="padding: 1em;">OR</div>
+                <div class="form-group">
+                    <input type="text" maxlength="50" style="padding-top: 0.5em; padding-bottom: 0.5em; text-align: center;" placeholder="Enter a game code" id="gameCodeInput" />
+                </div>
+                <button 
+                        class="btn"
+                        id="joinGameButton">
+                    Join a private room
+                </button>
+                <div style="margin-top: 10em">
+                    <button style="display: flex; color: darkblue" id="supportUsBtn" class="btn" onclick='document.getElementById("supportUs").style.display = "block";
+    document.getElementById("noteBtn").style.display = "none"'>
+                        Support us
+                    </button>
+                    <div id="supportUs" style="display: none;">
+                        <h1>Ways to support us (mainly FarmMiner):</h1>
+                        <h3>
+                            <br> Paybal: <a href="https://www.paypal.me/farmminer">https://www.paypal.me/farmminer </a>
+                            <br> Patreon: <a href="https://www.patreon.com/FarmMiner">https://www.patreon.com/FarmMiner </a>
+                            <br>Contact: direct message us on Discord (server: <a href=" https://discord.gg/NeSWajRwTg"> https://discord.gg/NeSWajRwTg</a>) FarmMiner#0094
+                            <button style="display:flex; color: blue; margin-bottom: 5em" class="btn" onclick='document.getElementById("supportUs").style.display = "none"'>
+                                Hide
+                            </button>
+                        </h3>
+                    </div>
+                </div>
+                <div style="margin-top: 15em">
+                    <button style="display: flex; color: dimgray; margin-bottom: 5em" id="noteBtn" class="btn" onclick='document.getElementById("terms").style.display = "block";
+    document.getElementById("noteBtn").style.display = "none"'>
+                        Terms of Service, Privacy Policy and contact
+                    </button>
+                    <div id="terms" style="display: none;">
+                        <h1>Terms of Service, Privacy Policy and contact.</h1>
+                        <br>
+                        <h2>Terms of Service</h2>
+                        <h4>
+                            <br>The Terms of Service is located at:<a href="http://localhost:3000/TOS.html" >http://localhost:3000/TOS.html </a>
+                        </h4>
+                        <br>
+                        <h2>Privacy Policy</h2>
+                        <h4>
+                            <br>The Privacy Policy is located at: <a href="http://localhost:3000/Privacy_Policy.html" >http://localhost:3000/Privacy_Policy.html </a>
+                        </h4>
+                        <br>
+                        <h2>Contact</h2><br>Contact: direct message us (FarmMiner) on Discord server: <a href=" https://discord.gg/NeSWajRwTg"> https://discord.gg/NeSWajRwTg</a> (MAKE SURE TO READ DISCORD'S TERMS AND POLICIES TOO WHEN USING DISCORD)
+                        <button style="display:flex; color: blue; margin-bottom: 5em" class="btn" onclick='document.getElementById("terms").style.display = "none"'>
+                            Hide
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+      <div id="gameScreen">
+          <div>
+              <h1>
+                  Your game code is: <span id="gameCodeDisplay"></span>
+                  <button style="color: darkred; margin-left: 2em;" onClick="openFullscreen()" class="btn">Fullscreen</button>
+              </h1>
+              <canvas id="canvas" style="image-rendering: pixelated;"onclick="document.addEventListener('keydown', keydown);document.addEventListener('keyup', keyup);document.addEventListener('keypress', keypress);"></canvas>
+          </div>
+      </div>
+    </div>
+  </center>
+</div>
+  <div>
+            <ul id="messages"></ul>
+    <form id="form" action="">
+      <input id="input" autocomplete="off" maxlength="150" onfocus="document.removeEventListener('keydown', keydown);document.removeEventListener('keyup', keyup);document.removeEventListener('keypress', keypress);"/><button>Send</button>
+    </form>
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"
+        integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13"
+        crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.min.js" integrity="sha512-iqRVtNB+t9O+epcgUTIPF+nklypcR23H1yR1NFM9kffn6/iBhZ9bTB6oKLaGMv8JE9UgjcwfBFg/eHC/VMws+g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="index.js"></script>
+<script>
+var sessionId = null;
+var modal = document.getElementById("loginModal");
+var logInBtn = document.getElementById("logInBtn");
+var logOutBtn = document.getElementById("logOutBtn");
+var input = document.getElementById("messages");
+if (!(initialScreen.style.display == "none")) {
+    input.style.display = "none";
+    document.getElementById("form").style.display = "none";
+}
+var modalX = document.getElementById("modalX");
+var closeBtn = document.getElementById("closeBtn");
+if (!(localStorage.getItem("sessionId"))) {
+    logInBtn.style.display = "block";
+    logOutBtn.style.display = "none";
+}
+if ((localStorage.getItem("sessionId"))) {
+    sessionId = localStorage.getItem("sessionId");
+    logInBtn.style.display = "none";
+    logOutBtn.style.display = "block";
+}
+logInBtn.onclick = function() {
+    modal.style.display = "block";
+}
+
+modalX.onclick = function() {
+    modal.style.display = "none";
+}
+closeBtn.onclick = function() {
+    modal.style.display = "none";
+}
+
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+var gameView = document.getElementById("canvas");
+
+function openFullscreen() {
+    if (gameView.requestFullscreen) {
+        gameView.requestFullscreen();
+    } else if (gameView.webkitRequestFullscreen) {
+        gameView.webkitRequestFullscreen();
+    } else if (gameView.msRequestFullscreen) {
+        gameView.msRequestFullscreen();
+    }
+}
+
+function newGame() {
+    socket.emit('newGame');
+    init();
+}
+
+function joinGame() {
+    const code = gameCodeInput.value;
+    if (code === "") {
+        alert("In order to join a private game, you must include a game code.")
+        return;
+    }
+    socket.emit('joinGame', code);
+    init();
+    gameCodeDisplay.innerText = code
+}
+
+function joinPub() {
+    socket.emit('joinPUBLIC', "PUBLIC");
+    init();
+}
+var messages = document.getElementById('messages');
+var form = document.getElementById('form');
+var input = document.getElementById('input');
+
+function time() {
+    let item = document.createElement('li');
+    let date0 = new Date();
+    let date01 = (date0.getMonth() < 9 ? '0' : '') + (date0.getMonth() + 1);
+    let m = (date0.getMinutes() < 9 ? '0' : '') + (date0.getMinutes());
+    let date = date0.getFullYear() + "-" + date01 + "-" + date0.getDate() + "    " + date0.getHours() + ":" + m;
+    item.textContent = date;
+    return item;
+}
+form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    if (input.value.length > 150) {
+        alert("Your message is too long! 150 characters is the maximum length of a message.")
+        return;
+    }
+    if (input.value) {
+        socket.emit('chat message', {
+            sessionId: sessionId,
+            msg: input.value
+        });
+        var item = document.createElement('li');
+        item.textContent = time().textContent + " (you): " + input.value;
+        messages.prepend(item);
+        input.value = '';
+    }
+});
+
+socket.on('chat message', function(msg) {
+    var item = document.createElement('li');
+    item.textContent = time().textContent + " (someone else): " + msg;
+    messages.prepend(item);
+});
+
+login_Btn.onclick = function logIn() {
+    socket.emit('logIn', {
+        username: document.getElementById("username").value,
+        password: document.getElementById("password").value
+    });
+}
+socket.on('logInFailed', function(msg) {
+    alert(msg);
+});
+socket.on('logInSuccessful', function(msg) {
+    sessionId = msg;
+    localStorage.setItem("sessionId", msg);
+    modal.style.display = "none";
+    logInBtn.style.display = "none";
+    logOutBtn.style.display = "block";
+});
+
+logOutBtn.onclick = function() {
+    socket.emit('logOut', localStorage.getItem("sessionId"));
+}
+socket.on('logOutFailed', function(msg) {
+    alert(msg);
+});
+socket.on('logOutSuccessful', function() {
+    sessionId = null;
+    localStorage.clear();
+    logInBtn.style.display = "block";
+    logOutBtn.style.display = "none";
+    alert("You are logged out!")
+});
+
+registerBtn.onclick = function register() {
+    socket.emit('register', {
+        username: document.getElementById("username").value,
+        password: document.getElementById("password").value
+    });
+}
+socket.on('registerFailed', function(msg) {
+    alert(msg);
+});
+socket.on('registerSuccessful', function(msg) {
+    sessionId = msg;
+    localStorage.setItem("sessionId", msg);
+    modal.style.display = "none";
+    logInBtn.style.display = "none";
+    logOutBtn.style.display = "block";
+    alert("The registration was a success!");
+});
+</script>
+</body>
+</html>
